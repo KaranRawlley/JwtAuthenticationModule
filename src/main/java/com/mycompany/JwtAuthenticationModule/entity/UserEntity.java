@@ -1,11 +1,21 @@
 package com.mycompany.JwtAuthenticationModule.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "USER_INFO_MST")
@@ -32,6 +42,24 @@ public class UserEntity {
 	
 	@Column( name = "PHONE_NO")
 	private String phoneNo;
+	
+	@JsonManagedReference //To avoid circular dependecy in bi-directional mapping
+	@ManyToMany(fetch = FetchType.EAGER, cascade =  CascadeType.ALL)
+	@JoinTable(name = "USER_ROLE",  
+	joinColumns = {@JoinColumn(name= "user_id" )},
+	inverseJoinColumns = {@JoinColumn(name = "role_id")})
+	private Set<RoleEntity> roles = new HashSet<>();
+	
+	
+	
+	
+	public Set<RoleEntity> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<RoleEntity> roles) {
+		this.roles = roles;
+	}
 
 	public Long getId() {
 		return id;
