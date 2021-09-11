@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,9 +29,12 @@ public class JwtConfig extends WebSecurityConfigurerAdapter  {
 	@Autowired
 	private JwtAuthenticationFilter jwtFilter;
 	
+	@Autowired
+	private JwtAuthenticationEntryPoint jwtAuthEntryPoint;
+	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(customUserDetailsService);
+		auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
 	}
 
 	@Override
@@ -41,10 +45,10 @@ public class JwtConfig extends WebSecurityConfigurerAdapter  {
 				.cors()
 				.disable()
 				.authorizeRequests()
-				.antMatchers("/api/authenticate").permitAll()
+				.antMatchers("/api/login", "/api/register","/h2-console/**").permitAll()
+				.anyRequest().authenticated() //for any other request valid jwt token is required
 				.and()
-				.authorizeRequests().antMatchers("/h2-console/**").permitAll()
-				.anyRequest().authenticated()
+				.exceptionHandling().authenticationEntryPoint(jwtAuthEntryPoint)
 				.and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 				
@@ -53,8 +57,8 @@ public class JwtConfig extends WebSecurityConfigurerAdapter  {
 	}
 	
 	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return NoOpPasswordEncoder.getInstance();
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 	
 	@Bean
