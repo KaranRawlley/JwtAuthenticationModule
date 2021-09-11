@@ -12,4 +12,5 @@ public interface RolesService {
 	public RoleModel createRole(RoleModel role);
 	public List<RoleModel> getAllRoles();
 	public RoleModel getRoleById(Long roleId);
+	public void deleteRoleById(Long roleId);
 }
