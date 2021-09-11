@@ -6,4 +6,5 @@ import com.mycompany.JwtAuthenticationModule.entity.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long>{
 
+	public UserEntity findUserByUsername(String username);
 }
